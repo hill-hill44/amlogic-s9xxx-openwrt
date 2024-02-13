@@ -47,12 +47,12 @@ on:
           - h69k
           - h88k
           - h88k-v3
+          - hugsun-x99
           - ipc-r
           - king3399
           - kylin3399
           - leez
           - lx-r3s
-          - nanopc-t4
           - nanopi-r5c
           - nanopi-r5s
           - panther-x2
@@ -211,7 +211,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Initialization environment
         id: init
