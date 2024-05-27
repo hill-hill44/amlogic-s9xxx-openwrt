@@ -94,7 +94,7 @@ specific_6xy=("6.6.y" "6.1.y")
 specific_5xy=("5.15.y" "5.10.y" "5.4.y")
 specific_kernel=()
 # Set the list of kernels used by default(Selectable version)
-stable_kernel=("6.1.y" "5.15.y")
+stable_kernel=("6.6.y" "6.1.y")
 flippy_kernel=(${stable_kernel[@]})
 dev_kernel=(${stable_kernel[@]})
 beta_kernel=(${stable_kernel[@]})
@@ -370,8 +370,11 @@ git_pull_dir() {
         error_msg "git_pull_dir parameter is missing: [ ${git_repo}, ${git_branch}, ${git_path} ]"
     }
 
-    # Git clone the repository to the temporary directory
-    git clone --quiet --single-branch --depth=1 --branch=${git_branch} ${git_repo} ${git_path}
+    # Clone the repository to the temporary directory. If it fails, wait 1 minute and try again, try 10 times.
+    for i in {1..10}; do
+        git clone --quiet --single-branch --depth=1 --branch=${git_branch} ${git_repo} ${git_path}
+        [[ "${?}" -eq "0" ]] && break || sleep 60
+    done
     [[ "${?}" -eq "0" ]] || error_msg "Failed to clone the [ ${git_repo} ] repository."
 }
 
@@ -567,12 +570,17 @@ download_kernel() {
                     kernel_down_from="https://github.com/${kernel_repo}/releases/download/kernel_${kd}/${kernel_var}.tar.gz"
                     echo -e "${INFO} (${x}.${i}) [ ${k} - ${kernel_var} ] Kernel download from [ ${kernel_down_from} ]"
 
+                    # Download the kernel files. If the download fails, try again 10 times.
                     [[ -d "${kernel_path}/${kd}" ]] || mkdir -p ${kernel_path}/${kd}
-                    curl -fsSL "${kernel_down_from}" -o "${kernel_path}/${kd}/${kernel_var}.tar.gz"
-                    [[ "${?}" -ne "0" ]] && error_msg "Failed to download the kernel files from the server."
+                    for t in {1..10}; do
+                        curl -fsSL "${kernel_down_from}" -o "${kernel_path}/${kd}/${kernel_var}.tar.gz"
+                        [[ "${?}" -eq "0" ]] && break || sleep 60
+                    done
+                    [[ "${?}" -eq "0" ]] || error_msg "Failed to download the kernel files from the server."
 
+                    # Decompress the kernel files
                     tar -mxzf "${kernel_path}/${kd}/${kernel_var}.tar.gz" -C "${kernel_path}/${kd}"
-                    [[ "${?}" -ne "0" ]] && error_msg "[ ${kernel_var} ] kernel decompression failed."
+                    [[ "${?}" -eq "0" ]] || error_msg "[ ${kernel_var} ] kernel decompression failed."
                 else
                     echo -e "${INFO} (${x}.${i}) [ ${k} - ${kernel_var} ] Kernel is in the local directory."
                 fi
@@ -1048,8 +1056,10 @@ EOF
         sed -e "s/macaddr=.*/macaddr=${random_macaddr}:06/" "brcmfmac43456-sdio.txt" >"brcmfmac43456-sdio.amlogic,sm1.txt"
         # x96max plus v5.1 (ip1001m phy) adopts am7256 (brcm4354)
         sed -e "s/macaddr=.*/macaddr=${random_macaddr}:07/" "brcmfmac4354-sdio.txt" >"brcmfmac4354-sdio.amlogic,sm1.txt"
+        # panther x2 AP6212A
+        sed -e "s/macaddr=.*/macaddr=${random_macaddr}:08/" "brcmfmac43430-sdio.txt" >"brcmfmac43430-sdio.panther,x2.txt"
         # ct2000 s922x is brm4359
-        sed -i "s/macaddr=.*/macaddr=${random_macaddr}:08/" "brcmfmac4359-sdio.ali,ct2000.txt"
+        sed -i "s/macaddr=.*/macaddr=${random_macaddr}:09/" "brcmfmac4359-sdio.ali,ct2000.txt"
     )
 
     # Add firmware version information to the terminal page

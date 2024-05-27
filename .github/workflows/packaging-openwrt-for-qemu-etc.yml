@@ -22,13 +22,8 @@ on:
           - beikeyun
           - cm3
           - e25
-          - l1pro
-          - photonicat
-          - qemu
-          - r66s
-          - r68s
-          - jp-tvbox
           - ht2
+          - e20c
           - h28k
           - h66k
           - h68k
@@ -36,8 +31,15 @@ on:
           - h69k-max
           - h88k
           - h88k-v3
+          - l1pro
+          - photonicat
+          - qemu
+          - r66s
+          - r68s
+          - jp-tvbox
           - watermelon-pi
           - rock5b
+          - rock5c
           - s905
           - s905d
           - s905x2
@@ -51,7 +53,7 @@ on:
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "6.1.y_5.15.y"
+        default: "6.1.y_6.6.y"
         type: choice
         options:
           - 5.4.y
@@ -60,8 +62,7 @@ on:
           - 6.1.y
           - 6.6.y
           - 6.1.y_6.6.y
-          - 6.1.y_5.15.y
-          - 5.4.y_5.10.y
+          - 5.15.y_5.10.y
       kernel_repo:
         description: "Set the kernel repository"
         required: false
